@@ -72,5 +72,5 @@ Feel free to contribute to this project by submitting pull requests.
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/AtharvaKulkarniIT/mern-todo-app/blob/main/LICENSE) file for details.
 
