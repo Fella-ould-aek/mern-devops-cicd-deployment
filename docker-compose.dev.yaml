@@ -1,8 +1,8 @@
 services:
   backend:
     build:
-      context: .   # ← go UP then into TODO
-      dockerfile: dockerfile.backend
+      context: . # ← go UP then into TODO
+      dockerfile: ./docker/dockerfile.backend
     container_name: todo_backend
     ports:
       - "5000:5000"
@@ -14,7 +14,7 @@ services:
   nginx:
     build:
       context: .   # ← go UP then into TODO
-      dockerfile: dockerfile.frontend
+      dockerfile: /docker/dockerfile.frontend
     container_name: todo_frontend
     ports:
       - "80:80"

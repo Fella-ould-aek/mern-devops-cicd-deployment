@@ -4,8 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest --forceExit --detectOpenHandles",
     "start": "nodemon server.js"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testTimeout": 30000
   },
   "keywords": [],
   "author": "atharva",
