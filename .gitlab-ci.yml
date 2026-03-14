@@ -11,7 +11,7 @@ testing:
   stage: test
   image: node:17-alpine3.14
   services:
-     - name: dhi.io/mongodb:8.0
+     - name: mongo
        alias: mongodb
 
   cache:
