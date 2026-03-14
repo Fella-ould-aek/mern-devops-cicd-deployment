@@ -14,6 +14,12 @@ testing:
      - name: mongo
        alias: mongodb
 
+  artifacts:
+    when: always          # ← save report even if tests fail
+    reports:
+      junit: TODO/todo_backend/reports/junit.xml  # ← GitLab reads this
+    expire_in: 1 week    
+
   cache:
      policy: pull-push
      when: on_success
