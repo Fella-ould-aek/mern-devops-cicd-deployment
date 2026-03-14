@@ -7,6 +7,10 @@
     "test": "jest --forceExit --detectOpenHandles",
     "start": "nodemon server.js"
   },
+  "devDependencies": {
+    "jest": "^29.0.0",        
+    "supertest": "^6.3.0"     
+  },
   "jest": {
     "testEnvironment": "node",
     "testTimeout": 30000
