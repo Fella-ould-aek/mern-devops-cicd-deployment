@@ -39,25 +39,25 @@ testing:
      - cat reports/junit.xml
     
 build:
-    stage: build
-    image: docker:24
-    services:
-      - name: docker:24-dind        # Docker-in-Docker, lets you run docker commands inside CI
-        alias: docker
-    before_script:
-      - docker login -u $DOCKERHUB_USERNAME -p --password-stdin 
-    script:
-      - docker build -f TODO/todo_backend/dockerfile.backend 
-        -t $DOCKERHUB_USERNAME/todo-backend:latest .
-      - docker push $DOCKERHUB_USERNAME/todo-backend:latest         
+  stage: build
+  image: docker:24
+  services:
+    - name: docker:24-dind
+      alias: docker
+  
+  before_script:
+    - echo $DOCKERHUB_PASS | docker login -u $DOCKERHUB_USERNAME --password-stdin
+  script:
+    #build the backend img
+    - docker build -f docker/dockerfile.backend -t $DOCKERHUB_USERNAME/todo-backend:latest .
+    - docker push $DOCKERHUB_USERNAME/todo-backend:latest
+    # build the frontend img
+    - docker build -f docker/dockerfile.frontend 
+      -t $DOCKERHUB_USERNAME/todo-frontend:latest .
+    - docker push $DOCKERHUB_USERNAME/todo-frontend:latest
 
-      - docker build docker/dockerfile.frontend
-        -t $DOCKERHUB_USERNAME/todo-frontend:latest .  
-      - docker push $DOCKERHUB_USERNAME/todo-frontend:latest  
-
-    needs:
+  needs:
     - job: testing
       artifacts: false
-    
-    rules:
-      - if: $CI_COMMIT_BRANCH == 'main' 
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
