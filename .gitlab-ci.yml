@@ -11,7 +11,7 @@ testing:
   stage: test
   image: node:17-alpine3.14
   services:
-     - name: MongoDB 8.0.x
+     - name: MongoDB:8.0
        alias: mongodb
        pull_policy: always
 
@@ -20,11 +20,12 @@ testing:
      when: on_success
      key:
         files:
-          - ./TODO/todo-backend/package.son
+          - /TODO/todo-backend/package.son
      paths:
-        - ./TODO/todo-backend/node_modules
-  before_script: 
-      - npm install
+        - /TODO/todo-backend/node_modules
+  before_script:
+   - cd TODO/todo_backend
+   - npm install
   script:
      - npm test
     
