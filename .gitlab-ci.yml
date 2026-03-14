@@ -32,6 +32,8 @@ testing:
    - cd TODO/todo_backend
    - npm install
    - npm install jest-junit
+   - echo "=== XML content ==="
+   - cat reports/junit.xml
   script:
      - npm test
     
