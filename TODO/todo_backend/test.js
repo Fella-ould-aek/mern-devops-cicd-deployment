@@ -1,10 +1,7 @@
 const request = require("supertest");
 const mongoose = require("mongoose");
-const { MongoMemoryServer } = require("mongodb-memory-server");
 const app = require("./server");
 const TodoModel = require("./models/Todo");
-
-let mongoServer;
 
 //  connect to the GitLab CI MongoDB service 
 beforeAll(async () => {
