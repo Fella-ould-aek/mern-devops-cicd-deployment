@@ -1,0 +1,30 @@
+workflow:
+    name: "MERN CI CD pipeline"
+    rules: 
+        - if: $CI_COMMIT_BRANCH== 'main' || $CI_COMMIT_BRANCH=~ /^feature/
+          when: always
+stages:
+    test
+
+
+testing:
+  stage: test
+  image: node:17-alpine3.14
+  services:
+     - name: MongoDB 8.0.x
+       alias: mongodb
+       pull_policy: always
+
+  cache:
+     policy: pull-push
+     when: on_success
+     key:
+        files:
+          - ./TODO/todo-backend/package.son
+     paths:
+        - ./TODO/todo-backend/node_modules
+  before_script: 
+      - npm install
+  script:
+     - npm test
+    
