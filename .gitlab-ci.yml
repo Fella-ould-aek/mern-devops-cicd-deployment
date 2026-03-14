@@ -45,16 +45,15 @@ build:
       - name: docker:24-dind        # Docker-in-Docker, lets you run docker commands inside CI
         alias: docker
     before_script:
-    - docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASS    
+      - docker login -u $DOCKERHUB_USERNAME -p --password-stdin 
     script:
-      - docker build
-        -f docker/dockerfile.backend   
-        -t $DOCKERHUB_USERNAME/todo-backend:latest   
-      - push $DOCKERHUB_USERNAME/todo-backend:latest         
+      - docker build -f TODO/todo_backend/dockerfile.backend 
+        -t $DOCKERHUB_USERNAME/todo-backend:latest .
+      - docker push $DOCKERHUB_USERNAME/todo-backend:latest         
 
       - docker build docker/dockerfile.frontend
-        -t $DOCKERHUB_USERNAME/todo-frontend:latest   
-      - push $DOCKERHUB_USERNAME/todo-frontend:latest  
+        -t $DOCKERHUB_USERNAME/todo-frontend:latest .  
+      - docker push $DOCKERHUB_USERNAME/todo-frontend:latest  
 
     needs:
     - job: testing
