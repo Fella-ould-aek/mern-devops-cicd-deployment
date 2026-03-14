@@ -13,7 +13,6 @@ testing:
   services:
      - name: dhi.io/mongodb:8.0
        alias: mongodb
-       pull_policy: always
 
   cache:
      policy: pull-push
