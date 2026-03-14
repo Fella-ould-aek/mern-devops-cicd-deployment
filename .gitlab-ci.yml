@@ -38,22 +38,24 @@ testing:
      - echo "=== XML content ==="
      - cat reports/junit.xml
     
+
 build:
   stage: build
   image: docker:24
   services:
     - name: docker:24-dind
       alias: docker
-  
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
   before_script:
-    - echo $DOCKERHUB_PASS | docker login -u $DOCKERHUB_USERNAME --password-stdin
+    - echo $DOCKERHUB_TOKEN | docker login -u $DOCKERHUB_USERNAME --password-stdin
   script:
-    #build the backend img
+    # ── Backend ──
     - docker build -f docker/dockerfile.backend -t $DOCKERHUB_USERNAME/todo-backend:latest .
     - docker push $DOCKERHUB_USERNAME/todo-backend:latest
-    # build the frontend img
-    - docker build -f docker/dockerfile.frontend 
-      -t $DOCKERHUB_USERNAME/todo-frontend:latest .
+
+    # ── Frontend ──
+    - docker build -f docker/dockerfile.frontend -t $DOCKERHUB_USERNAME/todo-frontend:latest .
     - docker push $DOCKERHUB_USERNAME/todo-frontend:latest
 
   needs:
