@@ -3,26 +3,22 @@ const mongoose = require("mongoose");
 const app = require("./server");
 const TodoModel = require("./models/Todo");
 
-//  connect to the GitLab CI MongoDB service 
 beforeAll(async () => {
-  const uri = 'mongodb://mongo:27017/todo_test';
+  const uri = "mongodb://mongo:27017/todo_test";
   await mongoose.connect(uri);
 });
 
-// Cleanup: clear DB between tests
 afterEach(async () => {
   await TodoModel.deleteMany({});
 });
 
-//  Teardown: disconnect after all tests
 afterAll(async () => {
   await mongoose.disconnect();
 });
 
-// POST /add
 // ───────────────────────────────────────────────────────
-describe("POST /add", () => {
-  it("should create a new todo and return it", async () => {
+describe("POST /add - Create a new todo", () => {
+  it("should receive a task and return it with an id and done=false", async () => {
     const res = await request(app).post("/add").send({ task: "Buy groceries" });
 
     expect(res.statusCode).toBe(200);
@@ -31,7 +27,7 @@ describe("POST /add", () => {
     expect(res.body.done).toBe(false);
   });
 
-  it("should store the todo in the database", async () => {
+  it("should save the received task to the database", async () => {
     await request(app).post("/add").send({ task: "Learn Docker" });
 
     const todos = await TodoModel.find();
@@ -41,17 +37,15 @@ describe("POST /add", () => {
 });
 
 // ───────────────────────────────────────────────────────
-// GET /get
-// ───────────────────────────────────────────────────────
-describe("GET /get", () => {
-  it("should return empty array when no todos exist", async () => {
+describe("GET /get - Retrieve all todos", () => {
+  it("should return an empty list when no tasks exist", async () => {
     const res = await request(app).get("/get");
 
     expect(res.statusCode).toBe(200);
     expect(res.body).toEqual([]);
   });
 
-  it("should return all todos", async () => {
+  it("should return all tasks stored in the database", async () => {
     await TodoModel.create({ task: "Task 1" });
     await TodoModel.create({ task: "Task 2" });
 
@@ -65,10 +59,8 @@ describe("GET /get", () => {
 });
 
 // ───────────────────────────────────────────────────────
-// PUT /edit/:id  (mark as done)
-// ───────────────────────────────────────────────────────
-describe("PUT /edit/:id", () => {
-  it("should mark a todo as done", async () => {
+describe("PUT /edit/:id - Mark a task as done", () => {
+  it("should mark the task as done when a valid id is provided", async () => {
     const todo = await TodoModel.create({ task: "Exercise", done: false });
 
     const res = await request(app).put(`/edit/${todo._id}`);
@@ -77,7 +69,7 @@ describe("PUT /edit/:id", () => {
     expect(res.body.done).toBe(true);
   });
 
-  it("should return null for non-existent id", async () => {
+  it("should return null when the task id does not exist", async () => {
     const fakeId = new mongoose.Types.ObjectId();
 
     const res = await request(app).put(`/edit/${fakeId}`);
@@ -88,25 +80,20 @@ describe("PUT /edit/:id", () => {
 });
 
 // ───────────────────────────────────────────────────────
-// PUT /update/:id  (edit task text)
-// ───────────────────────────────────────────────────────
-describe("PUT /update/:id", () => {
-  it("should update the task text", async () => {
+describe("PUT /update/:id - Edit a task text", () => {
+  it("should update the task text when a valid id and new text are provided", async () => {
     const todo = await TodoModel.create({ task: "Old task" });
 
     await request(app).put(`/update/${todo._id}`).send({ task: "New task" });
 
-    // Verify directly in DB (findByIdAndUpdate without {new:true} returns old doc)
     const updated = await TodoModel.findById(todo._id);
     expect(updated.task).toBe("New task");
   });
 });
 
 // ───────────────────────────────────────────────────────
-// DELETE /delete/:id
-// ───────────────────────────────────────────────────────
-describe("DELETE /delete/:id", () => {
-  it("should delete a todo", async () => {
+describe("DELETE /delete/:id - Remove a task", () => {
+  it("should delete the task from the database when a valid id is given", async () => {
     const todo = await TodoModel.create({ task: "Delete me" });
 
     const res = await request(app).delete(`/delete/${todo._id}`);
@@ -117,7 +104,7 @@ describe("DELETE /delete/:id", () => {
     expect(found).toBeNull();
   });
 
-  it("should return null when deleting non-existent todo", async () => {
+  it("should return null when trying to delete a non-existent task", async () => {
     const fakeId = new mongoose.Types.ObjectId();
 
     const res = await request(app).delete(`/delete/${fakeId}`);
