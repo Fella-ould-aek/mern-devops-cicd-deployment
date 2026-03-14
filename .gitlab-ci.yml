@@ -5,6 +5,7 @@ workflow:
           when: always
 stages:
     - test
+    - build
 
 
 testing:
@@ -37,3 +38,27 @@ testing:
      - echo "=== XML content ==="
      - cat reports/junit.xml
     
+build:
+    stage: build
+    image: docker:24
+    services:
+      - name: docker:24-dind        # Docker-in-Docker, lets you run docker commands inside CI
+        alias: docker
+    before_script:
+    - docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASS    
+    script:
+      - docker build
+        -f docker/dockerfile.backend   
+        -t $DOCKERHUB_USERNAME/todo-backend:latest   
+      - push $DOCKERHUB_USERNAME/todo-backend:latest         
+
+      - docker build docker/dockerfile.frontend
+        -t $DOCKERHUB_USERNAME/todo-frontend:latest   
+      - push $DOCKERHUB_USERNAME/todo-frontend:latest  
+
+    needs:
+    - job: testing
+      artifacts: false
+    
+    rules:
+      - if: $CI_COMMIT_BRANCH == 'main' 
