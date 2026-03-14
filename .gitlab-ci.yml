@@ -31,6 +31,7 @@ testing:
   before_script:
    - cd TODO/todo_backend
    - npm install
+   - npm install jest-junit
   script:
      - npm test
     
