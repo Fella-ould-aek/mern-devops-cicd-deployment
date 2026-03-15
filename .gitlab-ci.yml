@@ -7,6 +7,7 @@ stages:
     - test
     - build
     - provision
+    - deploy
 
 
 testing:
@@ -79,15 +80,44 @@ terraform-provisioning:
     - terraform plan -var="ssh_public_key=$EC2_SSH_PUBLIC_KEY"
     - terraform apply -auto-approve -var="ssh_public_key=$EC2_SSH_PUBLIC_KEY"
 
-    # ── save EC2 IP for deploy job ──
+   
     - terraform output -raw ec2_public_ip > ../ec2_ip.txt
     - echo "EC2 deployed at → $(cat ../ec2_ip.txt)"   
   artifacts:
     paths:
       - ec2_ip.txt        # ← pass EC2 IP to deploy job
     expire_in: 1 hour  
-  needs:
-    - job: build  
   rules:
     - if: $CI_COMMIT_BRANCH == "main"  
+
+deploying:
+  stage: deploy
+  image: alpine:latest
+
+  before_script:
+    - apk add --no-cache openssh-client
+    - mkdir -p ~/.ssh
+    - echo "$EC2_SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+
+  script:
+    - EC2_IP=$(cat ec2_ip.txt)
+    - ssh-keyscan -H $EC2_IP >> ~/.ssh/known_hosts
+    - sed -i "s/\${IMAGE_TAG}/$CI_COMMIT_SHA/g" docker-compose.prod.yaml
+    - scp docker-compose.prod.yaml ec2-user@$EC2_IP:~/docker-compose.yml
+    - |
+      ssh ec2-user@$EC2_IP << EOF
+        export MONGO_URI='$MONGO_URI'
+        docker-compose pull
+        docker-compose down
+        docker-compose up -d
+      EOF
+
+  needs:
+    - job: terraform-provisioning
+      artifacts: true
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+
+
 
