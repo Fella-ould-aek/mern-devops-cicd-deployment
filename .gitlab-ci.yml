@@ -6,6 +6,7 @@ workflow:
 stages:
     - test
     - build
+    - provision
 
 
 testing:
@@ -63,3 +64,30 @@ build:
       artifacts: false
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
+
+terraform-provisioning:
+  stage: provision
+  image:
+    name: hashicorp/terraform:1.6.0
+    entrypoint:
+      - ""
+  before_script:
+    - cd terraform
+    - terraform init 
+  script:
+    - terraform validate
+    - terraform plan -var="ssh_public_key=$EC2_SSH_PUBLIC_KEY"
+    - terraform apply -auto-approve -var="ssh_public_key=$EC2_SSH_PUBLIC_KEY"
+
+    # ── save EC2 IP for deploy job ──
+    - terraform output -raw ec2_public_ip > ../ec2_ip.txt
+    - echo "EC2 deployed at → $(cat ../ec2_ip.txt)"   
+  artifacts:
+    paths:
+      - ec2_ip.txt        # ← pass EC2 IP to deploy job
+    expire_in: 1 hour  
+  needs:
+    - job: build  
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"  
+
