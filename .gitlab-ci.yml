@@ -52,13 +52,22 @@ build:
   before_script:
     - echo $DOCKERHUB_TOKEN | docker login -u $DOCKERHUB_USERNAME --password-stdin
   script:
-    # ── Backend ──
-    - docker build -f docker/dockerfile.backend -t $DOCKERHUB_USERNAME/todo-backend:latest .
+     # ── Backend ──
+    - docker pull $DOCKERHUB_USERNAME/todo-backend:latest || true
+    - docker build
+        --cache-from $DOCKERHUB_USERNAME/todo-backend:latest
+        -f docker/dockerfile.backend
+        -t $DOCKERHUB_USERNAME/todo-backend:latest .
     - docker push $DOCKERHUB_USERNAME/todo-backend:latest
 
     # ── Frontend ──
-    - docker build -f docker/dockerfile.frontend -t $DOCKERHUB_USERNAME/todo-frontend:latest .
+    - docker pull $DOCKERHUB_USERNAME/todo-frontend:latest || true
+    - docker build
+        --cache-from $DOCKERHUB_USERNAME/todo-frontend:latest
+        -f docker/dockerfile.frontend
+        -t $DOCKERHUB_USERNAME/todo-frontend:latest .
     - docker push $DOCKERHUB_USERNAME/todo-frontend:latest
+
 
   needs:
     - job: testing
@@ -103,7 +112,6 @@ deploying:
   script:
     - EC2_IP=$(cat ec2_ip.txt)
     - ssh-keyscan -H $EC2_IP >> ~/.ssh/known_hosts
-    - sed -i "s/\${IMAGE_TAG}/$CI_COMMIT_SHA/g" docker-compose.prod.yaml
     - scp docker-compose.prod.yaml ec2-user@$EC2_IP:~/docker-compose.yml
     - |
       ssh ec2-user@$EC2_IP << EOF
@@ -111,7 +119,21 @@ deploying:
         docker-compose pull
         docker-compose down
         docker-compose up -d
+
+      sleep 10
+      
+      # print logs to see DB connection status
+      echo "=== BACKEND LOGS ==="
+      docker logs todo_backend
+
+      echo "=== FRONTEND LOGS ==="
+      docker logs todo_frontend
+
+      # verify containers are still running (not crashed)
+      echo "=== RUNNING CONTAINERS ==="
+      docker ps
       EOF
+    - echo "App live at → http://$EC2_IP 🚀"
 
   needs:
     - job: terraform-provisioning
