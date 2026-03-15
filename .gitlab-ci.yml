@@ -115,7 +115,7 @@ deploying:
       EOF
 
   needs:
-    - job: provision
+    - job: terraform-provisioning
       artifacts: true
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
