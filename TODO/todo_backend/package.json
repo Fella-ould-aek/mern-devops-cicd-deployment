@@ -8,22 +8,30 @@
     "start": "nodemon server.js"
   },
   "devDependencies": {
-    "jest": "^29.0.0",        
-    "supertest": "^6.3.0"     
+    "jest": "^29.0.0",
+    "supertest": "^6.3.0"
   },
-   "jest-junit": {
+  "jest-junit": {
     "outputDirectory": "reports",
     "outputName": "junit.xml"
   },
- "jest": {
+  "jest": {
     "testEnvironment": "node",
     "testTimeout": 30000,
     "reporters": [
       "default",
-      ["jest-junit", {
-        "outputDirectory": "reports",
-        "outputName": "junit.xml"
-      }]
+      [
+        "jest-junit",
+        {
+          "outputDirectory": "reports",
+          "outputName": "junit.xml",
+          "classname": "{classname}",
+          "title": "{title}",
+          "suiteNameTemplate": "{title}",
+          "ancestorSeparator": " › ",
+          "addFileAttribute": "true"
+        }
+      ]
     ]
   },
   "keywords": [],
