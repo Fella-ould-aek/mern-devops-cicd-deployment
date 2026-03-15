@@ -1,6 +1,6 @@
 services:
   backend:
-    image: fellaouldaek/todo-backend:${IMAGE_TAG}
+    image: fellaouldaek/todo-backend:latest
     container_name: todo_backend
     environment:
       - MONGO_URI=${MONGO_URI}
@@ -9,7 +9,7 @@ services:
     restart: always
 
   frontend:
-    image: fellaouldaek/todo-frontend:${IMAGE_TAG}
+    image: fellaouldaek/todo-frontend:latest
     container_name: todo_frontend
     ports:
       - "80:80"
