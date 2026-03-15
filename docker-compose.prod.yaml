@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  backend:
+    image: fellaouldaek/todo-backend:${IMAGE_TAG}
+    container_name: todo_backend
+    environment:
+      - MONGO_URI=${MONGO_URI}
+    networks:
+      - todo_network
+    restart: always
+
+  frontend:
+    image: fellaouldaek/todo-frontend:${IMAGE_TAG}
+    container_name: todo_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - todo_network
+    restart: always
+
+networks:
+  todo_network:
+    driver: bridge
