@@ -1,12 +1,6 @@
 variable "aws_region" {
   type        = string
 }
-variable "access_key" {
-    description = "the public ssh key"
-}
-variable "secret_key" {
-  description = "the private ssh key"
- }
  variable "ami" {
   description = "the aws machine image"
 }
